@@ -1,0 +1,3 @@
+title=Glasses
+author=Kenan Soylu
+orientation=portrait
