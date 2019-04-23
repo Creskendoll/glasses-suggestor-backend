@@ -1,3 +1,8 @@
+imutils
+argparse
+opencv-python
+numpy
+dlib
 kivy
 cython
 docutils
