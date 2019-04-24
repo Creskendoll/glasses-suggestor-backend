@@ -22,6 +22,7 @@ from kivy.uix.boxlayout import BoxLayout
 import cv2
 from functools import partial
 import numpy as np
+from helpers import predictFeature
 
 # Builder.load_string('''
 # <MyCamera>:
@@ -40,11 +41,15 @@ import numpy as np
 
 class MyCamera(Camera):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def on_tex(self, *l):
+        texture = self.texture
+        arr = np.reshape(np.fromstring(texture.pixels, dtype=np.uint8), 
+            (self.texture_size[1], self.texture_size[0], 4))
+        predArr = predictFeature(arr)
 
-    def on_texture(self, instance, value):
-        print("Update")
+        self.texture.blit_buffer(predArr.tostring(), bufferfmt="ubyte", colorfmt="rgba")
+
+        return super().on_tex(*l)
 
 
 class MyApp(App):
@@ -74,10 +79,6 @@ class MyApp(App):
         arr = np.fromstring(texture.pixels, dtype=np.uint8)
         a = np.reshape(arr, (camera.texture_size[1], camera.texture_size[0], 4))
         a = cv2.cvtColor(a, cv2.COLOR_RGBA2BGR)
-
-        # arr = np.ndarray(shape=[640,480,3], dtype=np.uint8)
-        # buffer = arr.tostring()
-        # texture.blit_buffer(buf.tostring(), bufferfmt="ubyte", colorfmt="rgba")
 
         cv2.imshow("frame", a)
 
