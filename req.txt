@@ -2,8 +2,10 @@ imutils
 argparse
 opencv-python
 numpy
+Cmake
 Cython
 dlib
+docutils
 kivy
 docutils
 pygments
