@@ -16,41 +16,70 @@ throw an exception during the kv language processing.
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.camera import Camera
+from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
-import time
-Builder.load_string('''
-<CameraClick>:
-    orientation: 'vertical'
-    Camera:
-        id: camera
-        resolution: (640, 480)
-        play: False
-    ToggleButton:
-        text: 'Play'
-        on_press: camera.play = not camera.play
-        size_hint_y: None
-        height: '48dp'
-    Button:
-        text: 'Capture'
-        size_hint_y: None
-        height: '48dp'
-        on_press: root.capture()
-''')
+import cv2
+from functools import partial
+import numpy as np
+
+# Builder.load_string('''
+# <MyCamera>:
+#     orientation: 'vertical'
+#     Camera:
+#         id: camera
+#         resolution: (640, 480)
+#         play: True
+
+#     Button:
+#         text: 'Capture'
+#         size_hint_y: None
+#         height: '48dp'
+#         on_press: root.capture()
+# ''')
+
+class MyCamera(Camera):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def on_texture(self, instance, value):
+        print("Update")
 
 
-class CameraClick(BoxLayout):
-    def capture(self):
+class MyApp(App):
+
+    def build(self):
+        view = BoxLayout()
+        view.orientation = "vertical"
+
+        cam = MyCamera(resolution=(640, 480), play=True)
+
+        btn = Button(text="Capture")
+        btn.size_hint_y = None
+        btn.height = '48dp'
+        btn.bind(on_press=partial(self.capture, cam))
+
+        view.add_widget(btn)
+        view.add_widget(cam)
+        return view
+    
+    def capture(self, camera, value):
         '''
         Function to capture the images and give them the names
         according to their captured time and date.
         '''
-        camera = self.ids['camera']
-        timestr = time.strftime("%Y%m%d_%H%M%S")
-        camera.export_to_png("IMG_{}.png".format(timestr))
-        print("Captured")
+        texture = camera.texture
 
+        arr = np.fromstring(texture.pixels, dtype=np.uint8)
+        a = np.reshape(arr, (camera.texture_size[1], camera.texture_size[0], 4))
+        a = cv2.cvtColor(a, cv2.COLOR_RGBA2BGR)
 
-class TestCamera(App):
+        # arr = np.ndarray(shape=[640,480,3], dtype=np.uint8)
+        # buffer = arr.tostring()
+        # texture.blit_buffer(buf.tostring(), bufferfmt="ubyte", colorfmt="rgba")
 
-    def build(self):
-        return CameraClick()
+        cv2.imshow("frame", a)
+
+if __name__ == "__main__":
+    MyApp().run()
