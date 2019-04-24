@@ -2,12 +2,9 @@ imutils
 argparse
 opencv-python
 numpy
+Cython
 dlib
 kivy
-cython
 docutils
 pygments
-pypiwin32
-kivy.deps.sdl2
-kivy.deps.glew
-kivy.deps.gstreamer
+buildozer
