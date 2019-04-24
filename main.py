@@ -1,10 +1,8 @@
 '''
-Camera Example
-==============
+Camera
+======
 
-This example demonstrates a simple use of the camera. It shows a window with
-a buttoned labelled 'play' to turn the camera on and off. Note that
-not finding a camera, perhaps because gstreamer is not installed, will
+Note that not finding a camera, perhaps because gstreamer is not installed, will
 throw an exception during the kv language processing.
 
 '''
@@ -15,7 +13,6 @@ throw an exception during the kv language processing.
 # Logger.setLevel(logging.TRACE)
 
 from kivy.app import App
-from kivy.lang import Builder
 from kivy.uix.camera import Camera
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -24,27 +21,17 @@ from functools import partial
 import numpy as np
 from helpers import predictFeature
 
-# Builder.load_string('''
-# <MyCamera>:
-#     orientation: 'vertical'
-#     Camera:
-#         id: camera
-#         resolution: (640, 480)
-#         play: True
-
-#     Button:
-#         text: 'Capture'
-#         size_hint_y: None
-#         height: '48dp'
-#         on_press: root.capture()
-# ''')
-
 class MyCamera(Camera):
 
+    # Called on each frame
     def on_tex(self, *l):
-        texture = self.texture
-        arr = np.reshape(np.fromstring(texture.pixels, dtype=np.uint8), 
+        '''
+        Function which gets called on each camera frame
+        '''
+
+        arr = np.reshape(np.fromstring(self.texture.pixels, dtype=np.uint8), 
             (self.texture_size[1], self.texture_size[0], 4))
+
         predArr = predictFeature(arr)
 
         self.texture.blit_buffer(predArr.tostring(), bufferfmt="ubyte", colorfmt="rgba")
@@ -54,33 +41,40 @@ class MyCamera(Camera):
 
 class MyApp(App):
 
+    # Called once
     def build(self):
+        # Root layout
         view = BoxLayout()
         view.orientation = "vertical"
 
-        cam = MyCamera(resolution=(640, 480), play=True)
+        # Camera instance
+        cam = MyCamera(resolution=(480, 1280), play=True)
 
+        # Button
         btn = Button(text="Capture")
         btn.size_hint_y = None
         btn.height = '48dp'
         btn.bind(on_press=partial(self.capture, cam))
 
+        # Add components to view
         view.add_widget(btn)
         view.add_widget(cam)
         return view
     
     def capture(self, camera, value):
         '''
-        Function to capture the images and give them the names
-        according to their captured time and date.
+        Function which gets called when the button is pressed
         '''
+        # Camera texture
         texture = camera.texture
 
-        arr = np.fromstring(texture.pixels, dtype=np.uint8)
-        a = np.reshape(arr, (camera.texture_size[1], camera.texture_size[0], 4))
-        a = cv2.cvtColor(a, cv2.COLOR_RGBA2BGR)
+        # Convert texture to np array
+        img = np.reshape(np.fromstring(texture.pixels, dtype=np.uint8),
+            (camera.texture_size[1], camera.texture_size[0], 4))
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
 
-        cv2.imshow("frame", a)
+        # Show img
+        cv2.imshow("Image", img)
 
 if __name__ == "__main__":
     MyApp().run()
