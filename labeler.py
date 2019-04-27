@@ -52,7 +52,8 @@ for img in os.listdir('./images'):
 
 df = pd.DataFrame(data, columns= column_names)
 export_csv = df.to_csv(r'C:\\Users\\Admin\\Desktop\\export_dataframe.csv', index = None, header=True)
-    
+export_csv.read()
+export_csv    
 
 
 print (df)# save csv to file
