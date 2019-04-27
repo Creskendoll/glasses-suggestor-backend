@@ -1,24 +1,26 @@
 import os
 import cv2
 import pandas as pd
+import csv
+from helpers import getFeature, predictFeature
 
 # from helpers import predictFeature
-#read csv
-# data =
+# read csv
 
-bbox = (0,0,50,50)
+bbox = [(0,0,0,0)]
+dots= [(0,0)]
+column_names = []
 
-dots = [(0,0),(1,1),(2,0),(0,0),(0,0),(0,0)]
+for index in range(68):
 
-column_names = []for index, dot in enumerate(dots):
+   column_names.append('x'+str(index))
 
-   column_names.append('x'+index)
-
-   column_names.append('y'+index)
+   column_names.append('y'+str(index))
 
 column_names.append('category')
 
 data = []
+
 
 for img in os.listdir('./images'):
 
@@ -31,31 +33,41 @@ for img in os.listdir('./images'):
    rgba_img = cv2.cvtColor(img_file, cv2.COLOR_BGR2RGBA)
 
    # pred_img = predictFeature(img_file)
+   faces = getFeature(img_file)
+   maxDots = 0
+   if len(faces) > 0:
+      (bbox,dots) = faces[0]
+      (faceX, faceY, faceW, faceH) = bbox
+      if len(dots) > maxDots:
+         maxDots = len(dots)
+      cv2.imshow('win', predictFeature(img_file))
 
-   cv2.imshow('win', img_file)
+      key = cv2.waitKey(0)
+      category = int(chr(key))
 
-   category = input('Category')
+      for (x,y) in dots:
+         normalizedX = (x - faceX) / faceW
+         normalizedY = (y - faceY) / faceH
+         row.append(normalizedX)
+         row.append(normalizedY)
 
-   while category not in range(0,9):
+      if len(dots) < 68:
+         for x in range(68 - len(dots)):
+            row.append(0)
+            row.append(0)
 
-       print('Enter between 1-8')
+      row.append(category)
 
-       category = input('Category')
+      data.append(row)
 
-   row.append(bbox)
-
-   row.append(dots)
-
-   row.append(category)
-
-   data.append(row)
+print(maxDots)
 
 df = pd.DataFrame(data, columns= column_names)
-export_csv = df.to_csv(r'C:\\Users\\Admin\\Desktop\\export_dataframe.csv', index = None, header=True)
-export_csv.read()
-export_csv    
+export_csv = df.to_csv(r'C:\\Users\\alper\\Desktop\\export_dataframe.csv', index = None, header=True)
 
+mass = pd.read_csv('C:\\Users\\alper\\Desktop\\export_dataframe.csv')
+print(mass)
 
-print (df)# save csv to file
+# save csv to file
 
 cv2.destroyAllWindows()
