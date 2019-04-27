@@ -6,6 +6,26 @@ import cv2
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("landmarks.dat")
 
+
+def getFeature(img):
+
+	result_img = img.copy()
+	gray = cv2.cvtColor(result_img, cv2.COLOR_RGBA2GRAY)
+	rects = detector(gray, 1)
+	result = []
+
+	for (i, rect) in enumerate(rects):
+		shape = predictor(gray, rect)
+		shape = face_utils.shape_to_np(shape)
+
+		(x, y, w, h) = face_utils.rect_to_bb(rect)
+		bbox = face_utils.rect_to_bb(rect)
+		result.append((bbox, [dot for dot in shape]))
+
+	return result
+
+
+
 def predictFeature(img):
 
 	result_img = img.copy()

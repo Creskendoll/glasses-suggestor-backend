@@ -1,25 +1,60 @@
 import os
 import cv2
-from helpers import predictFeature
-import tkinter as tk
+import pandas as pd
 
-TRAIN_IMAGES = "./training/"
+# from helpers import predictFeature
+#read csv
+# data =
 
-gui_root = tk.Tk()
+bbox = (0,0,50,50)
 
-canvas = tk.Canvas(gui_root, width = 500, height = 500)
-canvas.pack()
-img = tk.PhotoImage()
-btn = tk.Button(gui_root, text="Button")
-btn.pack(side="left")
+dots = [(0,0),(1,1),(2,0),(0,0),(0,0),(0,0)]
 
-canvas.create_image(20,20,anchor=tk.NW,image=img)
+column_names = []for index, dot in enumerate(dots):
+
+   column_names.append('x'+index)
+
+   column_names.append('y'+index)
+
+column_names.append('category')
+
+data = []
+
+for img in os.listdir('./images'):
+
+   row = []
+
+   print('./images/'+img)
+
+   img_file = cv2.imread('./images/'+img,cv2.IMREAD_COLOR)
+
+   rgba_img = cv2.cvtColor(img_file, cv2.COLOR_BGR2RGBA)
+
+   # pred_img = predictFeature(img_file)
+
+   cv2.imshow('win', img_file)
+
+   category = input('Category')
+
+   while category not in range(0,9):
+
+       print('Enter between 1-8')
+
+       category = input('Category')
+
+   row.append(bbox)
+
+   row.append(dots)
+
+   row.append(category)
+
+   data.append(row)
+
+df = pd.DataFrame(data, columns= column_names)
+export_csv = df.to_csv(r'C:\\Users\\Admin\\Desktop\\export_dataframe.csv', index = None, header=True)
+    
 
 
-for img_file in os.listdir(TRAIN_IMAGES):
-    img.file = img_file
-    img = cv2.waitKey(0)
-    # pred_img = predictFeature(img)
-    # cv2.imshow("Landmarks", pred_img)
+print (df)# save csv to file
 
-gui_root.mainloop()
+cv2.destroyAllWindows()

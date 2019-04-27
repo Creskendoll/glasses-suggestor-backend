@@ -9,7 +9,7 @@ import argparse
 import imutils
 import dlib
 import cv2
-from helpers import predictFeature
+from helpers import predictFeature, getFeature
 
 # construct the argument parser and parse the arguments
 # ap = argparse.ArgumentParser()
@@ -35,6 +35,8 @@ while True:
 	ret, frame = cam.read()
 	featured_img = predictFeature(frame)
 	cv2.imshow('Res', featured_img)
+	resulter = getFeature(frame)
+	print(resulter)
 	# show the output image with the face detections + facial landmarks
 	if cv2.waitKey(1) & 0xFF == ord('q'):
 		break
