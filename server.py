@@ -12,12 +12,15 @@ from helpers import getFeature
 import base64
 from PIL import Image
 from json import dumps
+from keras.models import load_model
 
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 app = Flask(__name__)
 app.config.from_object('config')
+model = load_model('model.h5')
+
 @app.route('/landmarks', methods=['POST', 'GET'])
 def home():
     arr = None
@@ -31,6 +34,17 @@ def home():
         # cv2.imwrite("img.jpg", 
         #     cv2.cvtColor(arr, cv2.COLOR_RGB2BGR))
         resulter = getFeature(arr)
+        normalizeddots=[]
+        (bbox,dots)=resulter[0]
+        (faceX, faceY, faceW, faceH) = bbox
+        for (x,y) in dots:
+            normalizedX = (x - faceX) / faceW
+            normalizedY = (y - faceY) / faceH
+            normalizeddots.append(normalizedX)
+            normalizeddots.append(normalizedY)
+
+        prediction=model.predict(normalizeddots)
+
         # print(resulter)
         return Response(dumps(list(resulter)), mimetype='application/json') 
     else:
