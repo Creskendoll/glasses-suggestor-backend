@@ -13,13 +13,23 @@ import base64
 from PIL import Image
 from json import dumps
 from keras.models import load_model
+from keras.models import model_from_json
+import tensorflow as tf
+global graph,model
+graph = tf.get_default_graph()
 
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 app = Flask(__name__)
 app.config.from_object('config')
-model = load_model('model.h5')
+
+json_file = open('model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+model = model_from_json(loaded_model_json)
+# load weights into new model
+model.load_weights("model.h5")
 
 @app.route('/landmarks', methods=['POST', 'GET'])
 def home():
@@ -29,7 +39,9 @@ def home():
         img_decoded = base64.b64decode(img_str)
         img_file = Image.open(BytesIO(img_decoded))
         arr = np.asarray(img_file, np.uint8)
-
+        cv2.imwrite("./img.jpg", 
+            cv2.cvtColor(arr, cv2.COLOR_RGB2BGR))
+    
     if arr is not None:
         # cv2.imwrite("img.jpg", 
         #     cv2.cvtColor(arr, cv2.COLOR_RGB2BGR))
@@ -42,11 +54,16 @@ def home():
             normalizedY = (y - faceY) / faceH
             normalizeddots.append(normalizedX)
             normalizeddots.append(normalizedY)
-
-        prediction=model.predict(normalizeddots)
-
+        if len(normalizeddots) == 136:
+            reshaped = np.array([normalizeddots])
+            # print(type(reshaped))
+            # print(reshaped.shape)
+            with graph.as_default():
+                prediction=model.predict(np.array([normalizeddots]))
+                print(prediction)
         # print(resulter)
-        return Response(dumps(list(resulter)), mimetype='application/json') 
+        # return Response((list(resulter)), mimetype='application/json') 
+        return 'ok'
     else:
         print('err')
         return 'Error'
