@@ -6,7 +6,5 @@ Cmake
 Cython
 dlib
 docutils
-kivy
 docutils
 pygments
-buildozer

@@ -5,7 +5,6 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import load_model
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 import os
 import numpy as np
@@ -27,7 +26,6 @@ for index, cat in enumerate(Y):
 # Y = ohe.fit_transform(Y).toarray()
 new_Y = np.array(new_Y)
 print(new_Y)
-
 
 from sklearn import preprocessing
 
@@ -58,17 +56,13 @@ if not os.path.isfile('./model.h5'):
             validation_data=(X_test, Y_test))
 
     model.save("model.h5")
-
-    # f,vs = plt.subplots(figsize = (8,7))
-    # sns.heatmap(df.corr(), annot = True, fmt = '.1f', ax = vs)
-    # plt.show()
 else:
     new_model = load_model('model.h5')
 
     prediction=new_model.predict(X_test)
     print(prediction[0])
 
-
     #Accuracy
     test_loss, test_acc = new_model.evaluate(X_test, Y_test)
     print('Test accuracy:', test_acc)
+    

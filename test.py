@@ -1,14 +1,10 @@
 import requests
 
-
 out_file = "./temp/client.jpg"
-
 
 local = "http://localhost:5000/landmarks"
 
-
-img = "C:\\Users\\alper\\Desktop\\a.jpg"
-# './static/images/about/02.jpg'
+img = ""
 
 with open(img, 'rb') as f:
 
@@ -21,3 +17,4 @@ with open(img, 'rb') as f:
 		print(r.text)
 	else:
 		print('Error')
+		

@@ -1,8 +1,7 @@
 import os
 import cv2
 import pandas as pd
-import csv
-from helpers import getFeature, predictFeature
+from helpers import getFeatures, drawFeatures
 
 # from helpers import predictFeature
 # read csv
@@ -33,14 +32,14 @@ for img in os.listdir('./images'):
    rgba_img = cv2.cvtColor(img_file, cv2.COLOR_BGR2RGBA)
 
    # pred_img = predictFeature(img_file)
-   faces = getFeature(img_file)
+   faces = getFeatures(img_file)
    maxDots = 0
    if len(faces) > 0:
       (bbox,dots) = faces[0]
       (faceX, faceY, faceW, faceH) = bbox
       if len(dots) > maxDots:
          maxDots = len(dots)
-      cv2.imshow('win', predictFeature(img_file))
+      cv2.imshow('win', drawFeatures(img_file))
 
       key = cv2.waitKey(0)
       category = int(chr(key))
@@ -63,9 +62,9 @@ for img in os.listdir('./images'):
 print(maxDots)
 
 df = pd.DataFrame(data, columns= column_names)
-export_csv = df.to_csv(r'C:\\Users\\alper\\Desktop\\export_dataframe.csv', index = None, header=True)
+export_csv = df.to_csv(r'./export_dataframe.csv', index = None, header=True)
 
-mass = pd.read_csv('C:\\Users\\alper\\Desktop\\export_dataframe.csv')
+mass = pd.read_csv(r'./export_dataframe.csv')
 print(mass)
 
 # save csv to file
